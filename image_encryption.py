@@ -68,15 +68,25 @@ def rail_fence_decrypt(cipher, key):
         return cipher
 
 
-def load_image_and_get_pixels(filename):
-    im = Image.open(filename)
-    width, height = im.size
+def resize_image(im):
+    x, y = im.size
+    if x > y:
+        height = round(500 * y / x)
+        width = 500
+    else:
+        width = round(500 * x / y)
+        height = 500
+    im = im.resize((width, height), Image.ANTIALIAS)
+    return im
+
+
+def get_pixels(im, width, height):
     colors = []
     for r in range(0, width):
         for c in range(0, height):
             color = im.getpixel((r, c))
             colors.append(color)
-    return colors, width, height
+    return colors
 
 
 def generate_and_save_image(colors, width, height, filename):
@@ -95,7 +105,12 @@ def generate_and_save_image(colors, width, height, filename):
 
 
 def encrypt_image(input_filename, output_filename, password):
-    colors, width, height = load_image_and_get_pixels(input_filename)
+    im = Image.open(input_filename)
+    width, height = im.size
+    if width > 500 or height > 500:
+        im = resize_image(im)
+        width, height = im.size
+    colors = get_pixels(im, width, height)
     encrypted = colors
     for i in password:
         encrypted = rail_fence_encrypt(encrypted, int(i))
@@ -104,14 +119,16 @@ def encrypt_image(input_filename, output_filename, password):
 
 def decrypt_image(input_filename, output_filename, password):
     password = password[::-1]
-    colors, width, height = load_image_and_get_pixels(input_filename)
+    im = Image.open(input_filename)
+    width, height = im.size
+    colors = get_pixels(im, width, height)
     decrypted = colors
     for i in password:
         decrypted = rail_fence_decrypt(decrypted, int(i))
     generate_and_save_image(decrypted, width, height, output_filename)
 
 
-PASSWORD = '567234'
+PASSWORD = '2345678'
 
 encrypt_image('filename.jpg', 'encrypted.png', PASSWORD)
 decrypt_image('encrypted.png', 'decrypted.png', PASSWORD)
