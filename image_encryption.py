@@ -3,9 +3,6 @@ from itertools import cycle
 from PIL import Image
 
 
-MAX_SIZE = 500
-
-
 def rail_pattern(n):
     r = list(range(n))
     return cycle(r + r[-2:0:-1])
@@ -91,6 +88,7 @@ def decrypt_image(input_filename, output_filename, password):
     generate_and_save_image(decrypted, width, height, output_filename)
 
 
+MAX_SIZE = 500
 PASSWORD = '432876523109687524169757'
 
 encrypt_image('filename.jpg', 'encrypted.png', PASSWORD)
